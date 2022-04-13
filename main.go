@@ -2,65 +2,47 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 )
 
+const STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
 func main() {
-	drawBoard()
+	draw(STARTING_FEN)
 }
 
-func drawBoard() {
-	fmt.Print("+ ")
-	for i := 0; i < 8; i++ {
-		fmt.Print("- ")
+func draw(fen string) {
+	parts := strings.Split(fen, " ")
+	pieces := parts[0]
+	ranks := strings.Split(pieces, "/")
+
+	drawHorizontalBorder := func() {
+		fmt.Print("+ ")
+		for i := 0; i < 8; i++ {
+			fmt.Print("- ")
+		}
+		fmt.Print("+")
+		fmt.Println()
 	}
-	fmt.Print("+")
-	fmt.Println()
+
+	drawHorizontalBorder()
 
 	for i := 0; i < 8; i++ {
 		fmt.Print("| ")
-		for j := 0; j < 8; j++ {
-			if i == 0 {
-				switch j {
-				case 0, 7:
-					fmt.Print("r")
-				case 1, 6:
-					fmt.Print("n")
-				case 2, 5:
-					fmt.Print("b")
-				case 3:
-					fmt.Print("q")
-				case 4:
-					fmt.Print("k")
-				}
-			} else if i == 1 {
-				fmt.Print("p")
-			} else if i == 6 {
-				fmt.Print("P")
-			} else if i == 7 {
-				switch j {
-				case 0, 7:
-					fmt.Print("R")
-				case 1, 6:
-					fmt.Print("N")
-				case 2, 5:
-					fmt.Print("B")
-				case 3:
-					fmt.Print("Q")
-				case 4:
-					fmt.Print("K")
-				}
+		rank := strings.Split(ranks[i], "")
+		for _, square := range rank {
+			empties, err := strconv.Atoi(square)
+			if err != nil {
+				fmt.Print(square + " ")
 			} else {
-				fmt.Print(".")
+				for j := 0; j < empties; j++ {
+					fmt.Print(". ")
+				}
 			}
-			fmt.Print(" ")
 		}
 		fmt.Println("|")
 	}
 
-	fmt.Print("+ ")
-	for i := 0; i < 8; i++ {
-		fmt.Print("- ")
-	}
-	fmt.Print("+")
-	fmt.Println()
+	drawHorizontalBorder()
 }
