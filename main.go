@@ -18,7 +18,7 @@ func draw(fen string) {
 	ranks := strings.Split(pieces, "/")
 
 	drawHorizontalBorder := func() {
-		fmt.Print("+ ")
+		fmt.Print("  + ")
 		for i := 0; i < 8; i++ {
 			fmt.Print("- ")
 		}
@@ -29,7 +29,7 @@ func draw(fen string) {
 	drawHorizontalBorder()
 
 	for i := 0; i < 8; i++ {
-		fmt.Print("| ")
+		fmt.Printf("%d | ", 8-i)
 		rank := strings.Split(ranks[i], "")
 		for _, square := range rank {
 			empties, err := strconv.Atoi(square)
@@ -45,4 +45,10 @@ func draw(fen string) {
 	}
 
 	drawHorizontalBorder()
+
+	fmt.Print("    ")
+	for i := 0; i < 8; i++ {
+		fmt.Printf("%c ", rune(97+i))
+	}
+	fmt.Println()
 }
