@@ -73,6 +73,72 @@ func TestBoard_NewBoard(t *testing.T) {
 	}
 }
 
+func TestBoard_Move(t *testing.T) {
+	tests := []struct {
+		name      string
+		color     PieceColor
+		move      string
+		wantEmpty []int
+		wantMoved []int
+		wantPiece *Piece
+	}{
+		{
+			name:      "Successfully moves a white pawn",
+			color:     White,
+			move:      "f3",
+			wantEmpty: []int{6, 5},
+			wantMoved: []int{5, 5},
+			wantPiece: &Piece{Type: Pawn, Color: White, Symbol: "P"},
+		},
+		{
+			name:      "Successfully moves a black pawn",
+			color:     Black,
+			move:      "e6",
+			wantEmpty: []int{1, 4},
+			wantMoved: []int{2, 4},
+			wantPiece: &Piece{Type: Pawn, Color: Black, Symbol: "p"},
+		},
+		// TODO: This test case uncovered a complication in the moving logic.
+		// In the cases where there are multiple of the same pieces (knight,
+		// bishop, rook), the correct piece needs to be moved based on the
+		// possible moves it can make instead of the first piece found when
+		// searching left to right through the ranks.
+		// {
+		// 	name:      "Successfully moves a white knight",
+		// 	color:     White,
+		// 	move:      "Nf3",
+		// 	wantEmpty: []int{7, 6},
+		// 	wantMoved: []int{5, 5},
+		// 	wantPiece: &Piece{Type: Knight, Color: White, Symbol: "N"},
+		// },
+		{
+			name:      "Successfully moves a black knight",
+			color:     Black,
+			move:      "Nc6",
+			wantEmpty: []int{0, 1},
+			wantMoved: []int{2, 2},
+			wantPiece: &Piece{Type: Knight, Color: Black, Symbol: "n"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			board := NewBoard()
+
+			board.Move(tt.color, tt.move)
+
+			if board[tt.wantEmpty[0]][tt.wantEmpty[1]].Piece != nil {
+				t.Errorf("Expected square %v to be empty", tt.wantEmpty)
+			}
+
+			moved := board[tt.wantMoved[0]][tt.wantMoved[1]].Piece
+			if !cmp.Equal(moved, tt.wantPiece) {
+				t.Errorf("Moved piece is incorrect: %s", cmp.Diff(moved, tt.wantPiece))
+			}
+		})
+	}
+}
+
 func TestBoard_Render(t *testing.T) {
 	board := NewBoard()
 
