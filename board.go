@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 type PieceType int
@@ -83,6 +84,54 @@ func NewBoard() Board {
 	return board
 }
 
+func (board *Board) Move(color PieceColor, move string) {
+	piece := Pawn
+	if unicode.IsUpper(rune(move[0])) {
+		switch rune(move[0]) {
+		case 'R':
+			piece = Rook
+		case 'N':
+			piece = Knight
+		case 'B':
+			piece = Bishop
+		case 'Q':
+			piece = Queen
+		case 'K':
+			piece = King
+		}
+	}
+
+	location := move
+	if piece != Pawn {
+		location = move[len(move)-2:]
+	}
+
+	file := int(location[0] - 'a')
+	rank := 8 - int(location[1]-'0')
+
+	if piece == Pawn {
+		for i := 0; i < 8; i++ {
+			currentPiece := board[i][file].Piece
+			if currentPiece != nil && currentPiece.Color == color && currentPiece.Type == piece {
+				board[i][file].Piece = nil
+				board[rank][file].Piece = currentPiece
+				break
+			}
+		}
+	} else {
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				currentPiece := board[i][j].Piece
+				if currentPiece != nil && currentPiece.Color == color && currentPiece.Type == piece {
+					board[i][j].Piece = nil
+					board[rank][file].Piece = currentPiece
+					break
+				}
+			}
+		}
+	}
+}
+
 func (board *Board) Render(w io.Writer) {
 	drawHorizontalBorder(w)
 
@@ -143,7 +192,7 @@ func drawHorizontalBorder(w io.Writer) {
 func drawFileCoordinates(w io.Writer) {
 	fmt.Fprint(w, "    ")
 	for i := 0; i < 8; i++ {
-		fmt.Fprintf(w, "%c ", rune(97+i))
+		fmt.Fprintf(w, "%c ", rune('a'+i))
 	}
 	fmt.Fprintln(w)
 }
