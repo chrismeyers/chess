@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-type Piece int
+type PieceType int
 
 const (
-	Empty Piece = iota
+	NoType PieceType = iota
 	Pawn
 	Rook
 	Knight
@@ -19,18 +19,22 @@ const (
 	King
 )
 
-type Color int
+type PieceColor int
 
 const (
-	None Color = iota
+	NoColor PieceColor = iota
 	White
 	Black
 )
 
-type Square struct {
-	Piece  Piece
-	Color  Color
+type Piece struct {
+	Type   PieceType
+	Color  PieceColor
 	Symbol string
+}
+
+type Square struct {
+	Piece *Piece
 }
 
 type Board [8][8]Square
@@ -43,87 +47,35 @@ func NewBoard() Board {
 			if i == 0 {
 				switch j {
 				case 0, 7:
-					board[i][j] = Square{
-						Piece:  Rook,
-						Color:  Black,
-						Symbol: "r",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: Rook, Color: Black, Symbol: "r"}}
 				case 1, 6:
-					board[i][j] = Square{
-						Piece:  Knight,
-						Color:  Black,
-						Symbol: "n",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: Knight, Color: Black, Symbol: "n"}}
 				case 2, 5:
-					board[i][j] = Square{
-						Piece:  Bishop,
-						Color:  Black,
-						Symbol: "b",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: Bishop, Color: Black, Symbol: "b"}}
 				case 3:
-					board[i][j] = Square{
-						Piece:  Queen,
-						Color:  Black,
-						Symbol: "q",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: Queen, Color: Black, Symbol: "q"}}
 				case 4:
-					board[i][j] = Square{
-						Piece:  King,
-						Color:  Black,
-						Symbol: "k",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: King, Color: Black, Symbol: "k"}}
 				}
 			} else if i == 1 {
-				board[i][j] = Square{
-					Piece:  Pawn,
-					Color:  Black,
-					Symbol: "p",
-				}
+				board[i][j] = Square{Piece: &Piece{Type: Pawn, Color: Black, Symbol: "p"}}
 			} else if i == 6 {
-				board[i][j] = Square{
-					Piece:  Pawn,
-					Color:  White,
-					Symbol: "P",
-				}
+				board[i][j] = Square{Piece: &Piece{Type: Pawn, Color: White, Symbol: "P"}}
 			} else if i == 7 {
 				switch j {
 				case 0, 7:
-					board[i][j] = Square{
-						Piece:  Rook,
-						Color:  White,
-						Symbol: "R",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: Rook, Color: White, Symbol: "R"}}
 				case 1, 6:
-					board[i][j] = Square{
-						Piece:  Knight,
-						Color:  White,
-						Symbol: "N",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: Knight, Color: White, Symbol: "N"}}
 				case 2, 5:
-					board[i][j] = Square{
-						Piece:  Bishop,
-						Color:  White,
-						Symbol: "B",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: Bishop, Color: White, Symbol: "B"}}
 				case 3:
-					board[i][j] = Square{
-						Piece:  Queen,
-						Color:  White,
-						Symbol: "Q",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: Queen, Color: White, Symbol: "Q"}}
 				case 4:
-					board[i][j] = Square{
-						Piece:  King,
-						Color:  White,
-						Symbol: "K",
-					}
+					board[i][j] = Square{Piece: &Piece{Type: King, Color: White, Symbol: "K"}}
 				}
 			} else {
-				board[i][j] = Square{
-					Piece:  Empty,
-					Color:  None,
-					Symbol: ".",
-				}
+				board[i][j] = Square{Piece: nil}
 			}
 		}
 	}
@@ -137,7 +89,11 @@ func (board *Board) Render(w io.Writer) {
 	for i := 0; i < 8; i++ {
 		fmt.Fprintf(w, "%d | ", 8-i)
 		for j := 0; j < 8; j++ {
-			fmt.Fprint(w, board[i][j].Symbol+" ")
+			symbol := "."
+			if board[i][j].Piece != nil {
+				symbol = board[i][j].Piece.Symbol
+			}
+			fmt.Fprint(w, symbol+" ")
 		}
 		fmt.Fprintln(w, "|")
 	}
