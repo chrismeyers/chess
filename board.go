@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 )
@@ -29,7 +30,7 @@ const (
 type Square struct {
 	Piece  Piece
 	Color  Color
-	Symbol rune
+	Symbol string
 }
 
 type Board [8][8]Square
@@ -45,44 +46,44 @@ func NewBoard() Board {
 					board[i][j] = Square{
 						Piece:  Rook,
 						Color:  Black,
-						Symbol: 'r',
+						Symbol: "r",
 					}
 				case 1, 6:
 					board[i][j] = Square{
 						Piece:  Knight,
 						Color:  Black,
-						Symbol: 'n',
+						Symbol: "n",
 					}
 				case 2, 5:
 					board[i][j] = Square{
 						Piece:  Bishop,
 						Color:  Black,
-						Symbol: 'b',
+						Symbol: "b",
 					}
 				case 3:
 					board[i][j] = Square{
 						Piece:  Queen,
 						Color:  Black,
-						Symbol: 'q',
+						Symbol: "q",
 					}
 				case 4:
 					board[i][j] = Square{
 						Piece:  King,
 						Color:  Black,
-						Symbol: 'k',
+						Symbol: "k",
 					}
 				}
 			} else if i == 1 {
 				board[i][j] = Square{
 					Piece:  Pawn,
 					Color:  Black,
-					Symbol: 'p',
+					Symbol: "p",
 				}
 			} else if i == 6 {
 				board[i][j] = Square{
 					Piece:  Pawn,
 					Color:  White,
-					Symbol: 'P',
+					Symbol: "P",
 				}
 			} else if i == 7 {
 				switch j {
@@ -90,38 +91,38 @@ func NewBoard() Board {
 					board[i][j] = Square{
 						Piece:  Rook,
 						Color:  White,
-						Symbol: 'R',
+						Symbol: "R",
 					}
 				case 1, 6:
 					board[i][j] = Square{
 						Piece:  Knight,
 						Color:  White,
-						Symbol: 'N',
+						Symbol: "N",
 					}
 				case 2, 5:
 					board[i][j] = Square{
 						Piece:  Bishop,
 						Color:  White,
-						Symbol: 'B',
+						Symbol: "B",
 					}
 				case 3:
 					board[i][j] = Square{
 						Piece:  Queen,
 						Color:  White,
-						Symbol: 'Q',
+						Symbol: "Q",
 					}
 				case 4:
 					board[i][j] = Square{
 						Piece:  King,
 						Color:  White,
-						Symbol: 'K',
+						Symbol: "K",
 					}
 				}
 			} else {
 				board[i][j] = Square{
 					Piece:  Empty,
 					Color:  None,
-					Symbol: '.',
+					Symbol: ".",
 				}
 			}
 		}
@@ -130,63 +131,63 @@ func NewBoard() Board {
 	return board
 }
 
-func (board *Board) Render() {
-	drawHorizontalBorder()
+func (board *Board) Render(w io.Writer) {
+	drawHorizontalBorder(w)
 
 	for i := 0; i < 8; i++ {
-		fmt.Printf("%d | ", 8-i)
+		fmt.Fprintf(w, "%d | ", 8-i)
 		for j := 0; j < 8; j++ {
-			fmt.Printf("%c ", board[i][j].Symbol)
+			fmt.Fprint(w, board[i][j].Symbol+" ")
 		}
-		fmt.Println("|")
+		fmt.Fprintln(w, "|")
 	}
 
-	drawHorizontalBorder()
+	drawHorizontalBorder(w)
 
-	drawFileCoordinates()
+	drawFileCoordinates(w)
 }
 
-func RenderFEN(fen string) {
+func RenderFEN(w io.Writer, fen string) {
 	parts := strings.Split(fen, " ")
 	pieces := parts[0]
 	ranks := strings.Split(pieces, "/")
 
-	drawHorizontalBorder()
+	drawHorizontalBorder(w)
 
 	for i := 0; i < 8; i++ {
-		fmt.Printf("%d | ", 8-i)
+		fmt.Fprintf(w, "%d | ", 8-i)
 		rank := strings.Split(ranks[i], "")
 		for _, square := range rank {
 			empties, err := strconv.Atoi(square)
 			if err != nil {
-				fmt.Print(square + " ")
+				fmt.Fprint(w, square+" ")
 			} else {
 				for j := 0; j < empties; j++ {
-					fmt.Print(". ")
+					fmt.Fprint(w, ". ")
 				}
 			}
 		}
-		fmt.Println("|")
+		fmt.Fprintln(w, "|")
 	}
 
-	drawHorizontalBorder()
+	drawHorizontalBorder(w)
 
-	drawFileCoordinates()
+	drawFileCoordinates(w)
 }
 
-func drawHorizontalBorder() {
-	fmt.Print("  + ")
+func drawHorizontalBorder(w io.Writer) {
+	fmt.Fprint(w, "  + ")
 	for i := 0; i < 8; i++ {
-		fmt.Print("- ")
+		fmt.Fprint(w, "- ")
 	}
-	fmt.Print("+")
-	fmt.Println()
+	fmt.Fprint(w, "+")
+	fmt.Fprintln(w)
 }
 
-func drawFileCoordinates() {
-	fmt.Print("    ")
+func drawFileCoordinates(w io.Writer) {
+	fmt.Fprint(w, "    ")
 	for i := 0; i < 8; i++ {
-		fmt.Printf("%c ", rune(97+i))
+		fmt.Fprintf(w, "%c ", rune(97+i))
 	}
-	fmt.Println()
+	fmt.Fprintln(w)
 }
